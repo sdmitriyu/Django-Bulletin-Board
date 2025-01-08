@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from board.models import Advertisement
 from board.forms import AdvertisementForm
@@ -15,6 +15,11 @@ def logout_view(request):
 
 
 def signup(request):
+    '''
+    Функция регистрации новых пользователей
+    :param request:
+    :return:
+    '''
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -26,31 +31,55 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def home(request):
+    '''
+    Направляет на домашнюю страницу
+    :param request:
+    :return:
+    '''
     return render(request, 'home.html')
 
 def advertisement_list(request):
+    '''
+    Функция вызывает список объявлений из базы данных
+    :param request:
+    :return:
+    '''
     advertisements = Advertisement.objects.all()
     return render(request, 'board/advertisement_list.html', {'advertisements': advertisements})
 
 def advertisement_detail(request, pk):
+    '''
+    Функция показывает детали объявления
+    :param request:
+    :param pk:
+    :return:
+    '''
     advertisement = Advertisement.objects.get(pk=pk)
     return render(request, 'board/advertisement_detail.html', {'advertisement': advertisement})
 
 @login_required
 def add_advertisement(request):
+    '''
+        Функция создаёт новое объявление. Так же проверяет, зарегистрирован ли пользователь, подающий объявление
+        :param request:
+        :return:
+        '''
     if request.method == "POST":
         form = AdvertisementForm(request.POST)
         if form.is_valid():
             advertisement = form.save(commit=False)
             advertisement.author = request.user
             advertisement.save()
-            return redirect('board')
+            return redirect('board:advertisement_list')
     else:
         form = AdvertisementForm()
     return render(request, 'board/add_advertisement.html', {'form': form})
 
 
 class AdvertisementUpdateView(UpdateView):
+    '''
+    Встроенный в Django класс для редактирования объявлений
+    '''
     model = Advertisement
     form_class = AdvertisementForm
     template_name = 'board/edit_advertisement.html'
@@ -63,3 +92,20 @@ class AdvertisementUpdateView(UpdateView):
     def get_success_url(self):
         # Возвращает URL адрес для перенаправления пользователя после успешного редактирования
         return reverse('board:advertisement_detail', kwargs={'pk': self.object.pk})
+
+
+
+def delete_advertisement(request, ad_id):
+    '''
+    Функция удаления объявлений
+    :param request:
+    :param ad_id:
+    :return:
+    '''
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
+
+    if request.method == 'POST':
+        advertisement.delete()
+        return redirect('board:advertisement_list')
+
+    return render(request, 'board/delete_advertisement.html', {'advertisement':advertisement})

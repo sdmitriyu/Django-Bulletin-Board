@@ -37,18 +37,22 @@
   - перекидывает в URL приложения
 - При неудачной валидации:
   - Перенаправляет на страницу формы входа `signup.html`
+![signup.png](urban_project%2FImages%2Fsignup.png)
 
 ### _def home(request):_
 Функция перекидывает на страницу `home.html`
+![home.png](urban_project%2FImages%2Fhome.png)
 
 ### _def advertisement_list(request):_
 Функция достаёт из базы данных все оъявления, и передаёт на 
 страницу `board/advertisement_list.html`
+![advertisement_list.png](urban_project%2FImages%2Fadvertisement_list.png)
 
 ### _def advertisement_detail(request, pk):_
 Функция для отображения деталей объявления.
 - Достаёт детали оъявления из базы данных и сохраняет в переменную advertisement
 - передаёт в шаблон `advertisement_detail.html`
+![advertisement_detail.png](urban_project%2FImages%2Fadvertisement_detail.png)
 
 ### _def add_advertisement(request):_
 Форма для сохранения нового оъявления
@@ -61,6 +65,66 @@
   - Пользователя перекидывает на страницу `advertisement_list`
 - Если валидность не подтверждена
   - Возвращается форма заполнения объявления
+![add_advertisement.png](urban_project%2FImages%2Fadd_advertisement.png)
+
+### 1. AdvertisementUpdateView — класс для редактирования объявлений
+
+Класс основан на встроенной в Django представлении UpdateView. Он позволяет пользователю редактировать объявление, предоставленное в форме.
+
+#### Ключевые параметры:
+
+- model: Модель, используемая для работы (Advertisement).
+- form_class: Ссылка на форму, которая используется для представления данных (AdvertisementForm).
+- template_name: Путь к HTML-шаблону, который будет отображать форму редактирования (board/edit_advertisement.html).
+- context_object_name: Ключ доступа к объекту в контексте шаблона (advertisement).
+
+#### Методы:
+
+def form_valid(self, form):
+    # Дополнительная логика обработки формы перед сохранением,
+    # если это требуется
+    return super().form_valid(form)
+
+- Этот метод вызывается при успешной валидации формы. Можно добавить кастомную обработку данных объявлений до сохранения.
+
+def get_success_url(self):
+    # URL для перенаправления пользователя после успешного редактирования
+    return reverse('board:advertisement_detail', kwargs={'pk': self.object.pk})
+
+- Метод возвращает URL, на который будет перенаправлен пользователь после успешного сохранения изменений. В данном случае, это страница с подробной информацией о редактируемом объявлении.
+![AdvertisementUpdateView.png](urban_project%2FImages%2FAdvertisementUpdateView.png)
+---
+
+### 2. delete_advertisement — функция удаления объявлений
+
+Функция позволяет пользователям удалять свои объявления. Она требует подтверждения удаления, которое обрабатывается через POST-запрос.
+
+#### Параметры:
+- request: Передаёт данные запроса пользователя.
+- ad_id: ID удаляемого объявления.
+
+#### Логика работы:
+1. Функция ищет объявление с указанным идентификатором (ad_id) через функцию get_object_or_404.
+2. Если запрос — POST (подтверждение удаления), объявление удаляется с помощью метода delete.
+3. После успешного удаления пользователь перенаправляется на список всех объявлений (board:advertisement_list).
+4. В случае GET-запроса пользователю отображается страница подтверждения (board/delete_advertisement.html).
+
+#### Код функции:
+
+def delete_advertisement(request, ad_id):
+    """
+    Удаление объявления
+    :param request: объект запроса
+    :param ad_id: ID удаляемого объявления
+    :return: HTTP ответ
+    """
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
+    if request.method == 'POST':
+        advertisement.delete()
+        return redirect('board:advertisement_list')
+    return render(request, 'board/delete_advertisement.html', {'advertisement': advertisement})"""
+![delete_advertisement1.png](urban_project%2FImages%2Fdelete_advertisement1.png)
+![delete_advertisement2.png](urban_project%2FImages%2Fdelete_advertisement2.png)
 ---
 ## |[models.py](urban_project%2Fboard%2Fmodels.py)
 Этот код представляет собой реализацию базовой модели объявлений и комментариев в Django, с использованием встроенного 
