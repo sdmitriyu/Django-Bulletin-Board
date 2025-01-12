@@ -55,7 +55,7 @@
 ![advertisement_detail.png](urban_project%2FImages%2Fadvertisement_detail.png)
 
 ### _def add_advertisement(request):_
-Форма для сохранения нового оъявления
+Форма для сохранения нового оъявления с изображением
 - Принимает форму объявления
 - Проверяет его валидность
 - если валидность подтверждена

@@ -60,13 +60,14 @@ def advertisement_detail(request, pk):
 @login_required
 def add_advertisement(request):
     '''
-        Функция создаёт новое объявление. Так же проверяет, зарегистрирован ли пользователь, подающий объявление
-        :param request:
-        :return:
-        '''
+    Функция создаёт новое объявление. Так же проверяет, зарегистрирован ли пользователь, подающий объявление
+    :param request:
+    :return:
+    '''
     if request.method == "POST":
-        form = AdvertisementForm(request.POST)
+        form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            handle_uploaded_file(request.FILES['file'])
             advertisement = form.save(commit=False)
             advertisement.author = request.user
             advertisement.save()
@@ -74,6 +75,12 @@ def add_advertisement(request):
     else:
         form = AdvertisementForm()
     return render(request, 'board/add_advertisement.html', {'form': form})
+
+def handle_uploaded_file(f):
+    with open("media/" + f.name, "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
 
 
 class AdvertisementUpdateView(UpdateView):

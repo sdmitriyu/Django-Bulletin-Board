@@ -2,6 +2,12 @@
 
 {% block content %}
 <h1>{{ advertisement.title }}</h1>
+{% if advertisement.image %}
+    <img src="{{ advertisement.image.url }}" alt="{{ advertisement.title }}">
+{% else %}
+    <p>Изображение отсутствует</p>
+{% endif %}
+
 <p>{{ advertisement.content }}</p>
 <a href="{% url 'board:edit_advertisement' pk=advertisement.pk %}">Редактировать</a>
 <a href="{% url 'board:delete_advertisement' ad_id=advertisement.pk %}">Удалить</a>
