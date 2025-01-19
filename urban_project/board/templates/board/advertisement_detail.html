@@ -10,6 +10,15 @@
 
 <p>{{ advertisement.content }}</p>
 <p>{{advertisement.author.username}}</p>
+<form action="{% url 'board:like_def' advertisement.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Like</button>
+</form>
+
+<form action="{% url 'board:dislike_def' advertisement.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Dislike</button>
+</form>
 <a href="{% url 'board:edit_advertisement' pk=advertisement.pk %}">Редактировать</a>
 <a href="{% url 'board:delete_advertisement' ad_id=advertisement.pk %}">Удалить</a>
 {% endblock %}

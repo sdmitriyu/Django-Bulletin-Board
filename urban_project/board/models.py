@@ -7,6 +7,8 @@ class Advertisement(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='media/', blank=True, null=True, default='default.jpg')
+    likes = models.IntegerField(default=0)
+    dislikes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -19,3 +21,16 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.author} on {self.advertisement}'
+
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Пользователь, который поставил лайк
+    advertisement = models.ForeignKey(Advertisement, on_delete=models.CASCADE)  # Объявление, которое получило лайк
+    created_at = models.DateTimeField(auto_now_add=True)  # Время, когда был поставлен лайк
+
+
+
+class Dislike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Пользователь, который поставил лайк
+    advertisement = models.ForeignKey(Advertisement, on_delete=models.CASCADE)  # Объявление, которое получило лайк
+    created_at = models.DateTimeField(auto_now_add=True)  # Время, когда был поставлен лайк

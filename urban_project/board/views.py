@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from board.models import Advertisement
+from board.models import Advertisement, Like, Dislike
 from board.forms import AdvertisementForm
 from django.views.generic import UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from .forms import SignUpForm
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 
 def logout_view(request):
     logout(request)
@@ -116,3 +117,67 @@ def delete_advertisement(request, ad_id):
         return redirect('board:advertisement_list')
 
     return render(request, 'board/delete_advertisement.html', {'advertisement':advertisement})
+
+
+def like_def(request, advertisement_id):
+    advertisement = get_object_or_404(Advertisement, id=advertisement_id)
+
+    # Для аутентифицированных пользователей
+    if request.user.is_authenticated:
+        # Проверяем, ставил ли пользователь лайк
+        if Like.objects.filter(user=request.user, advertisement=advertisement).exists():
+            # Если лайк уже существует, ничего не делаем и перенаправляем
+            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+
+        # Если лайка нет, создаём новый
+        Like.objects.create(user=request.user, advertisement=advertisement)
+
+    # Для гостей
+    else:
+        user_has_liked = request.session.get(f'has_liked_{advertisement_id}', False)
+
+        if user_has_liked:
+            # Если лайк уже проставлен, просто перенаправляем
+            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+
+        # Помечаем, что лайк был поставлен
+        request.session[f'has_liked_{advertisement_id}'] = True
+
+    # Увеличиваем количество лайков
+    advertisement.likes += 1
+    advertisement.save()
+
+    # Перенаправляем
+    return redirect("advertisement_detail", advertisement_id=advertisement.id)
+
+
+def dislike_def(request, advertisement_id):
+    advertisement = get_object_or_404(Advertisement, id=advertisement_id)
+
+    # Для аутентифицированных пользователей
+    if request.user.is_authenticated:
+        # Проверяем, ставил ли пользователь лайк
+        if Dislike.objects.filter(user=request.user, advertisement=advertisement).exists():
+            # Если лайк уже существует, ничего не делаем и перенаправляем
+            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+
+        # Если лайка нет, создаём новый
+        Dislike.objects.create(user=request.user, advertisement=advertisement)
+
+    # Для гостей
+    else:
+        user_has_disliked = request.session.get(f'has_disliked_{advertisement_id}', False)
+
+        if user_has_disliked:
+            # Если лайк уже проставлен, просто перенаправляем
+            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+
+        # Помечаем, что лайк был поставлен
+        request.session[f'has_disliked_{advertisement_id}'] = True
+
+    # Увеличиваем количество лайков
+    advertisement.dislikes += 1
+    advertisement.save()
+
+    # Перенаправляем
+    return redirect("advertisement_detail", advertisement_id=advertisement.id)
