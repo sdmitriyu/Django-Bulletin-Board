@@ -127,7 +127,7 @@ def like_def(request, advertisement_id):
         # Проверяем, ставил ли пользователь лайк
         if Like.objects.filter(user=request.user, advertisement=advertisement).exists():
             # Если лайк уже существует, ничего не делаем и перенаправляем
-            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+            return redirect("board:advertisement_detail", pk=advertisement.id)
 
         # Если лайка нет, создаём новый
         Like.objects.create(user=request.user, advertisement=advertisement)
@@ -138,7 +138,7 @@ def like_def(request, advertisement_id):
 
         if user_has_liked:
             # Если лайк уже проставлен, просто перенаправляем
-            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+            return redirect("board:advertisement_detail", pk=advertisement.id)
 
         # Помечаем, что лайк был поставлен
         request.session[f'has_liked_{advertisement_id}'] = True
@@ -148,7 +148,7 @@ def like_def(request, advertisement_id):
     advertisement.save()
 
     # Перенаправляем
-    return redirect("advertisement_detail", advertisement_id=advertisement.id)
+    return redirect("board:advertisement_detail", pk=advertisement.id)
 
 
 def dislike_def(request, advertisement_id):
@@ -159,7 +159,7 @@ def dislike_def(request, advertisement_id):
         # Проверяем, ставил ли пользователь лайк
         if Dislike.objects.filter(user=request.user, advertisement=advertisement).exists():
             # Если лайк уже существует, ничего не делаем и перенаправляем
-            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+            return redirect("board:advertisement_detail", pk=advertisement.id)
 
         # Если лайка нет, создаём новый
         Dislike.objects.create(user=request.user, advertisement=advertisement)
@@ -170,7 +170,7 @@ def dislike_def(request, advertisement_id):
 
         if user_has_disliked:
             # Если лайк уже проставлен, просто перенаправляем
-            return redirect("advertisement_detail", advertisement_id=advertisement.id)
+            return redirect("board:advertisement_detail", pk=advertisement.id)
 
         # Помечаем, что лайк был поставлен
         request.session[f'has_disliked_{advertisement_id}'] = True
@@ -180,4 +180,4 @@ def dislike_def(request, advertisement_id):
     advertisement.save()
 
     # Перенаправляем
-    return redirect("advertisement_detail", advertisement_id=advertisement.id)
+    return redirect("board:advertisement_detail", pk=advertisement.id)
