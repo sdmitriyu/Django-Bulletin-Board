@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <h1>{{ advertisement.title }}</h1>
+
 {% if advertisement.image %}
     <img src="{{ advertisement.image.url }}" alt="{{ advertisement.title }}">
 {% else %}
@@ -9,16 +11,20 @@
 {% endif %}
 
 <p>{{ advertisement.content }}</p>
-<p>{{advertisement.author.username}}</p>
-<form action="{% url 'board:like_def' advertisement.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Like</button>
-</form>
+<p>Автор: {{ advertisement.author.username }}</p>
 
-<form action="{% url 'board:dislike_def' advertisement.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Dislike</button>
-</form>
-<a href="{% url 'board:edit_advertisement' pk=advertisement.pk %}">Редактировать</a>
-<a href="{% url 'board:delete_advertisement' ad_id=advertisement.pk %}">Удалить</a>
+<div class="like-dislike-container">
+    <button type="button" class="like-btn" data-id="{{ advertisement.id }}" data-url="{% url 'board:like_def' advertisement.id %}">Like</button>
+    <span id="likes-count-{{ advertisement.id }}">{{ advertisement.total_dislikes }}</span>
+
+    <button type="button" class="dislike-btn" data-id="{{ advertisement.id }}" data-url="{% url 'board:dislike_def' advertisement.id %}">Dislike</button>
+    <span id="dislikes-count-{{ advertisement.id }}">{{ advertisement.total_dislikes }}</span>
+</div>
+
+<div>
+    <a href="{% url 'board:edit_advertisement' pk=advertisement.pk %}" class="btn btn-edit">Редактировать</a>
+    <a href="{% url 'board:delete_advertisement' ad_id=advertisement.pk %}" class="btn btn-delete">Удалить</a>
+</div>
+
 {% endblock %}
+
